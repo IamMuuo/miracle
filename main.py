@@ -1,4 +1,4 @@
-from .miracle import MIRFile
+from miracle import MIRFile
 
 # Read the file
 mirFile: MIRFile = MIRFile("/home/erick/Desktop/your.MIR")
