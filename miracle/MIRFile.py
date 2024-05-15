@@ -7,6 +7,7 @@ A class that representing a MIR file and expose functionality
 to parse a .MIR file
 """
 
+from .MIRBody import MIRBody
 from .MIRHeader import MIRHeader
 import json
 
@@ -16,7 +17,7 @@ class MIRFile:
     def __init__(self, path: str = "") -> None:
         self.path: str = path
         self.header: MIRHeader = MIRHeader()
-        self.body: dict = dict()
+        self.body: MIRBody = MIRBody()
 
     def set_file_path(self, path: str):
         """
@@ -31,6 +32,7 @@ class MIRFile:
         Incase of any error expect the function to throw an exception and
         return None
         """
+        print(self.path)
         if not self.path.endswith(".MIR"):
             raise Exception("The specified file is not of .MIR format")
 
@@ -46,9 +48,17 @@ class MIRFile:
 
     def parse(self, data: bytes):
         self.header.from_bytes(data[0:344])
+        self.body.parse(data[344:])
 
         file_name = self.path.split("/")[-1]
         file_name = file_name.replace(".MIR", ".json")
 
         with open(file_name, "w") as fobj:
-            json.dump(self.header.header_info, fobj, indent=4)
+            json.dump(
+                {
+                    "header": self.header.header_info,
+                    "body": self.body.to_serializable(),
+                },
+                fobj,
+                indent=4,
+            )
