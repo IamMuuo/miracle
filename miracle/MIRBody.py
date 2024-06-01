@@ -2,6 +2,7 @@
 A representation of the .MIR body
 """
 
+
 class MIRBody:
     def __init__(self) -> None:
         self.passanger_section: list[dict] = []
