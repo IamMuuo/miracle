@@ -3,6 +3,13 @@ A representation of the .MIR body
 """
 
 
+def str_to_float(input: str) -> float:
+    try:
+        return float(input.strip())
+    except Exception:
+        return 0.0
+
+
 class MIRBody:
     def __init__(self) -> None:
         self.passanger_section: list[dict] = []
@@ -54,11 +61,11 @@ class MIRBody:
                 case "A07":
                     section_data = {
                         "currency_code": subsection[5:8],
-                        "base_fare_amount": float(subsection[8:20]),
+                        "base_fare_amount": str_to_float(subsection[8:20].strip()),
                         "currency_code_for_total": subsection[20:23],
-                        "total_amount": float(subsection[23:35].strip()),
+                        "total_amount": str_to_float(subsection[23:35].strip()),
                         "equivalent_amount_currency_code": subsection[35:38].strip(),
-                        "equivalent_amount": float(subsection[38:50].strip()),
+                        "equivalent_amount": str_to_float(subsection[38:50].strip()),
                     }
                     self.fare_section.append(section_data)
                     continue

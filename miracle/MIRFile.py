@@ -7,6 +7,8 @@ A class that representing a MIR file and expose functionality
 to parse a .MIR file
 """
 
+import os
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from .MIRBody import MIRBody
 from .MIRHeader import MIRHeader
 import json
@@ -46,19 +48,39 @@ class MIRFile:
 
             return data
 
+    def read_in_memory_file_bytes(
+        self, uploaded_file: InMemoryUploadedFile
+    ) -> bytes | None:
+        """
+
+        Open the specified .MIR file and read its bytes
+
+        Incase of any error expect the function to throw an exception and
+        return None
+        """
+
+        file_extension = os.path.splitext(uploaded_file.name)
+        extension_valid = ".MIR" in file_extension
+
+        if extension_valid:
+            data: bytes = bytes()
+            for chunk in uploaded_file.chunks():
+                data += chunk
+
+            if len(data) <= 0:
+                raise Exception(
+                    "The specified .MIR file was empty and cannot be parsed"
+                )
+
+            return data
+
+        raise Exception("The specified .MIR file cannot be parsed")
+
     def parse(self, data: bytes):
         self.header.from_bytes(data[0:344])
         self.body.parse(data[344:])
 
-        file_name = self.path.split("/")[-1]
-        file_name = file_name.replace(".MIR", ".json")
-
-        with open(file_name, "w") as fobj:
-            json.dump(
-                {
-                    "header": self.header.header_info,
-                    "body": self.body.to_serializable(),
-                },
-                fobj,
-                indent=4,
-            )
+        return {
+            "header": self.header.header_info,
+            "body": self.body.to_serializable(),
+        }
